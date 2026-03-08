@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OPTIC-LENS · Atmospheric Optics Framework</title>
+<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #03060f;
+    --deep: #070d1a;
+    --navy: #0a1628;
+    --steel: #112240;
+    --cyan: #00d4ff;
+    --cyan-dim: #0099bb;
+    --amber: #ffb800;
+    --amber-dim: #cc9200;
+    --white: #e8f0ff;
+    --muted: #7a8fa6;
+    --glow-cyan: rgba(0,212,255,0.15);
+    --glow-amber: rgba(255,184,0,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--white);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* ── CANVAS BG ── */
+  #starfield {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 3rem;
+    border-bottom: 1px solid rgba(0,212,255,0.08);
+    background: rgba(3,6,15,0.85);
+    backdrop-filter: blur(12px);
+  }
+
+  .nav-logo {
+    font-family: 'Oxanium', monospace;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    color: var(--cyan);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .nav-logo span {
+    color: var(--amber);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--cyan); }
+
+  .nav-doi {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--amber);
+    letter-spacing: 0.05em;
+    border: 1px solid var(--amber-dim);
+    padding: 0.35rem 0.8rem;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: background 0.3s;
+  }
+
+  .nav-doi:hover { background: var(--glow-amber); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+  }
+
+  .hero-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    border: 1px solid rgba(0,212,255,0.3);
+    padding: 0.4rem 1.2rem;
+    border-radius: 2px;
+    margin-bottom: 2.5rem;
+    display: inline-block;
+    animation: fadeUp 0.8s ease forwards;
+    opacity: 0;
+    background: rgba(0,212,255,0.04);
+  }
+
+  .hero-title {
+    font-family: 'Oxanium', monospace;
+    font-weight: 800;
+    font-size: clamp(3.5rem, 8vw, 7rem);
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    margin-bottom: 0.4rem;
+    animation: fadeUp 0.8s 0.1s ease forwards;
+    opacity: 0;
+  }
+
+  .hero-title .lens { color: var(--cyan); }
+  .hero-title .optic { color: var(--white); }
+
+  .hero-subtitle-mono {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s 0.2s ease forwards;
+    opacity: 0;
+  }
+
+  .hero-desc {
+    font-size: 1.25rem;
+    line-height: 1.7;
+    color: rgba(232,240,255,0.75);
+    max-width: 680px;
+    margin: 0 auto 3rem;
+    font-style: italic;
+    animation: fadeUp 0.8s 0.3s ease forwards;
+    opacity: 0;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 0.8s 0.4s ease forwards;
+    opacity: 0;
+  }
+
+  .btn-primary {
+    font-family: 'Oxanium', monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: var(--cyan);
+    color: var(--void);
+    border: none;
+    padding: 0.9rem 2.2rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+
+  .btn-primary:hover {
+    background: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0,212,255,0.4);
+  }
+
+  .btn-secondary {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid rgba(122,143,166,0.3);
+    padding: 0.85rem 2rem;
+    text-decoration: none;
+    transition: all 0.3s;
+  }
+
+  .btn-secondary:hover {
+    color: var(--white);
+    border-color: var(--white);
+  }
+
+  /* ── SCROLLER ── */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    animation: fadeUp 0.8s 0.8s ease forwards;
+    opacity: 0;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(to bottom, var(--cyan), transparent);
+    animation: scrollPulse 2s infinite;
+  }
+
+  .scroll-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── METRICS STRIP (عمودي) ── */
+  .metrics-strip {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid rgba(0,212,255,0.1);
+    border-bottom: 1px solid rgba(0,212,255,0.1);
+    background: rgba(7,13,26,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    max-width: 700px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .metric-item {
+    padding: 2.2rem 2.5rem;
+    border-bottom: 1px solid rgba(0,212,255,0.08);
+    text-align: center;
+    width: 100%;
+    background: rgba(7,13,26,0.6);
+    transition: background 0.3s;
+  }
+
+  .metric-item:last-child { border-bottom: none; }
+
+  .metric-item:hover { background: rgba(0,212,255,0.04); }
+
+  .metric-value {
+    font-family: 'Oxanium', monospace;
+    font-weight: 700;
+    font-size: 3rem;
+    color: var(--cyan);
+    display: block;
+    line-height: 1;
+    margin-bottom: 0.6rem;
+  }
+
+  .metric-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* ── SECTION ── */
+  section {
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6rem 3rem;
+  }
+
+  .section-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--cyan);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  .section-title {
+    font-family: 'Oxanium', monospace;
+    font-weight: 700;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    color: var(--white);
+  }
+
+  .section-body {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: rgba(232,240,255,0.65);
+    max-width: 600px;
+  }
+
+  /* ── MODULES GRID ── */
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1px;
+    background: rgba(0,212,255,0.06);
+    border: 1px solid rgba(0,212,255,0.06);
+    margin-top: 4rem;
+  }
+
+  .module-card {
+    background: var(--deep);
+    padding: 2.5rem;
+    transition: background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .module-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .module-card:hover { background: var(--navy); }
+  .module-card:hover::before { opacity: 1; }
+
+  .module-index {
+    font-family: 'Oxanium', monospace;
+    font-weight: 800;
+    font-size: 3.5rem;
+    color: rgba(0,212,255,0.08);
+    line-height: 1;
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .module-name {
+    font-family: 'Oxanium', monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--cyan);
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+  }
+
+  .module-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .module-desc {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgba(232,240,255,0.55);
+  }
+
+  .module-eq {
+    margin-top: 1.2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: rgba(0,212,255,0.5);
+    background: rgba(0,212,255,0.04);
+    border-left: 2px solid rgba(0,212,255,0.2);
+    padding: 0.6rem 0.8rem;
+    line-height: 1.5;
+  }
+
+  /* ── PIPELINE ── */
+  .pipeline-section {
+    background: var(--deep);
+  }
+
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin-top: 4rem;
+    flex-wrap: wrap;
+  }
+
+  .pipe-step {
+    flex: 1;
+    min-width: 160px;
+    padding: 2rem 1.5rem;
+    border: 1px solid rgba(0,212,255,0.08);
+    border-right: none;
+    position: relative;
+    background: var(--void);
+    transition: background 0.3s;
+  }
+
+  .pipe-step:last-child { border-right: 1px solid rgba(0,212,255,0.08); }
+  .pipe-step:hover { background: rgba(0,212,255,0.03); }
+
+  .pipe-arrow {
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    background: var(--void);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    color: var(--cyan);
+    z-index: 2;
+  }
+
+  .pipe-step:last-child .pipe-arrow { display: none; }
+
+  .pipe-num {
+    font-family: 'Oxanium', monospace;
+    font-weight: 800;
+    font-size: 2rem;
+    color: rgba(255,184,0,0.15);
+    line-height: 1;
+    margin-bottom: 0.8rem;
+  }
+
+  .pipe-name {
+    font-family: 'Oxanium', monospace;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .pipe-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ── CODE BLOCK ── */
+  .code-section {
+    background: var(--void);
+  }
+
+  .code-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-top: 3rem;
+    align-items: start;
+  }
+
+  @media (max-width: 768px) { .code-wrap { grid-template-columns: 1fr; } }
+
+  .code-block {
+    background: #070d1a;
+    border: 1px solid rgba(0,212,255,0.12);
+    border-top: 3px solid var(--cyan);
+    padding: 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    line-height: 1.8;
+    overflow: auto;
+  }
+
+  .code-header {
+    padding: 0.7rem 1.2rem;
+    border-bottom: 1px solid rgba(0,212,255,0.1);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0,212,255,0.03);
+  }
+
+  .code-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .code-dot:nth-child(1) { background: #ff5f57; }
+  .code-dot:nth-child(2) { background: #febc2e; }
+  .code-dot:nth-child(3) { background: #28c840; }
+
+  .code-filename {
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-left: 0.5rem;
+  }
+
+  .code-body {
+    padding: 1.5rem;
+    color: rgba(232,240,255,0.7);
+  }
+
+  .c-comment { color: rgba(122,143,166,0.7); }
+  .c-kw { color: #ff79c6; }
+  .c-fn { color: var(--cyan); }
+  .c-str { color: #f1fa8c; }
+  .c-num { color: var(--amber); }
+  .c-cls { color: #bd93f9; }
+
+  /* ── VALIDATION ── */
+  .validation-section {
+    background: linear-gradient(180deg, var(--void) 0%, var(--deep) 50%, var(--void) 100%);
+  }
+
+  .val-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 900px) { .val-grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 600px) { .val-grid { grid-template-columns: 1fr; } }
+
+  .val-card {
+    border: 1px solid rgba(0,212,255,0.1);
+    padding: 2rem;
+    position: relative;
+  }
+
+  .val-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), var(--amber));
+  }
+
+  .val-source {
+    font-family: 'Oxanium', monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--cyan);
+    margin-bottom: 0.3rem;
+  }
+
+  .val-type {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .val-criterion {
+    font-size: 0.85rem;
+    color: rgba(232,240,255,0.55);
+    line-height: 1.6;
+  }
+
+  .val-target {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--cyan);
+    margin-top: 0.8rem;
+    padding: 0.4rem 0.7rem;
+    background: rgba(0,212,255,0.05);
+    border-left: 2px solid var(--cyan);
+  }
+
+  /* ── LINKS STRIP ── */
+  .links-section {
+    background: var(--steel);
+    border-top: 1px solid rgba(0,212,255,0.1);
+  }
+
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0;
+  }
+
+  .link-item {
+    padding: 2.5rem 2rem;
+    border-right: 1px solid rgba(0,212,255,0.08);
+    text-decoration: none;
+    display: block;
+    transition: background 0.3s;
+  }
+
+  .link-item:last-child { border-right: none; }
+  .link-item:hover { background: rgba(0,212,255,0.05); }
+
+  .link-icon {
+    font-size: 1.4rem;
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  .link-name {
+    font-family: 'Oxanium', monospace;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--white);
+    margin-bottom: 0.3rem;
+  }
+
+  .link-url {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── FOOTER (تم الإصلاح) ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    background: var(--deep);
+    border-top: 1px solid rgba(0,212,255,0.12);
+    padding: 4rem 3rem 2rem;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-bottom: 3rem;
+    border-bottom: 1px solid rgba(0,212,255,0.08);
+  }
+
+  @media (max-width: 900px) {
+    .footer-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 560px) {
+    .footer-grid { grid-template-columns: 1fr; }
+    footer { padding: 3rem 1.5rem 2rem; }
+  }
+
+  .footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .footer-col h4 {
+    font-family: 'Oxanium', monospace;
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0,212,255,0.15);
+  }
+
+  .footer-col a {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.2rem 0;
+    transition: color 0.2s;
+    letter-spacing: 0.02em;
+  }
+
+  .footer-col a:hover {
+    color: var(--cyan);
+    padding-left: 0.3rem;
+  }
+
+  .footer-col p {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 0.3rem;
+  }
+
+  .footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .footer-col li {
+    margin-bottom: 0.5rem;
+  }
+
+  .footer-bottom {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-top: 2rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .footer-copyright {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    color: rgba(122,143,166,0.6);
+    letter-spacing: 0.05em;
+  }
+
+  .footer-quote {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 0.8rem;
+    color: rgba(232,240,255,0.3);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.15); }
+  }
+
+  @keyframes rotateSlow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── DECORATIVE RING ── */
+  .hero-ring {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border: 1px solid rgba(0,212,255,0.04);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: rotateSlow 60s linear infinite;
+    pointer-events: none;
+  }
+
+  .hero-ring::before {
+    content: '';
+    position: absolute;
+    width: 4px; height: 4px;
+    background: var(--cyan);
+    border-radius: 50%;
+    top: 0; left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 12px var(--cyan);
+  }
+
+  .hero-ring-2 {
+    position: absolute;
+    width: 900px;
+    height: 900px;
+    border: 1px solid rgba(255,184,0,0.03);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: rotateSlow 90s linear infinite reverse;
+    pointer-events: none;
+  }
+
+  .hero-ring-2::before {
+    content: '';
+    position: absolute;
+    width: 3px; height: 3px;
+    background: var(--amber);
+    border-radius: 50%;
+    top: 50%; right: 0;
+    transform: translate(50%, -50%);
+    box-shadow: 0 0 8px var(--amber);
+  }
+</style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-ring"></div>
+  <div class="hero-ring-2"></div>
+
+  <span class="hero-badge">Whitepaper v1.0.0 · March 2026 · Open Science</span>
+
+  <h1 class="hero-title">
+    <span class="optic">OPTIC</span><span class="lens">-LENS</span>
+  </h1>
+
+  <p class="hero-subtitle-mono">
+    Optical Phenomena · Turbulence & Imaging · Light Environmental Nonlinearity System
+  </p>
+
+  <p class="hero-desc">
+    A unified physics-computational framework for optical scattering anomalies
+    and photon dynamics in heterogeneous atmospheric media — from first-principles
+    Mie theory to real-time neural network inference.
+  </p>
+
+  <div class="hero-actions">
+    <a href="https://opticlens.netlify.app" class="btn-primary" target="_blank">Launch Dashboard</a>
+    <a href="https://github.com/gitdeeper8/opticlens" class="btn-secondary" target="_blank">pip install opticlens</a>
+    <a href="https://osf.io/ek5ru" class="btn-secondary" target="_blank">OSF Project</a>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    <span class="scroll-label">Scroll</span>
+  </div>
+</section>
+
+<!-- METRICS (عمودي) -->
+<div style="position:relative;z-index:1;background:rgba(7,13,26,0.8);border-top:1px solid rgba(0,212,255,0.1);border-bottom:1px solid rgba(0,212,255,0.1);padding:3rem 1.5rem;">
+<div class="metrics-strip">
+  <div class="metric-item">
+    <span class="metric-value">5</span>
+    <span class="metric-label">Physical Regimes</span>
+  </div>
+  <div class="metric-item">
+    <span class="metric-value">0%</span>
+    <span class="metric-label">Mie Error vs B&H 1983</span>
+  </div>
+  <div class="metric-item">
+    <span class="metric-value">50</span>
+    <span class="metric-label">Atmospheric Layers</span>
+  </div>
+  <div class="metric-item">
+    <span class="metric-value">10⁶</span>
+    <span class="metric-label">Photons / Ray Trace</span>
+  </div>
+  <div class="metric-item">
+    <span class="metric-value">CC BY</span>
+    <span class="metric-label">4.0 Open License</span>
+  </div>
+</div>
+</div>
+
+<!-- MODULES -->
+<section id="modules">
+  <div class="section-inner">
+    <span class="section-tag reveal">Physical Framework</span>
+    <h2 class="section-title reveal">Five Coupled<br>Physical Regimes</h2>
+    <p class="section-body reveal">
+      Each module is derived from first principles, validated independently,
+      and coupled through a common atmospheric state vector.
+    </p>
+
+    <div class="modules-grid">
+      <div class="module-card reveal">
+        <span class="module-index">01</span>
+        <div class="module-name">Mie Scattering Engine</div>
+        <div class="module-sub">opticlens.scattering.mie_v10</div>
+        <p class="module-desc">Exact Mie series solution for extinction efficiency Q_ext, phase function P(θ), and asymmetry parameter g for arbitrary size parameter x and complex refractive index m. Extended via T-matrix for non-spherical hexagonal ice crystals.</p>
+        <div class="module-eq">Q_ext = (2/x²) · Σₙ (2n+1) · Re[aₙ + bₙ]</div>
+      </div>
+
+      <div class="module-card reveal">
+        <span class="module-index">02</span>
+        <div class="module-name">Refractive Index</div>
+        <div class="module-sub">opticlens.refraction.edlen</div>
+        <p class="module-desc">Modified Edlén equation with humidity correction δn_water and CO₂ adjustment. Vertical gradient ∂n/∂z computation for ray bending radius and mirage displacement quantification over desert and tarmac surfaces.</p>
+        <div class="module-eq">n(P,T,λ) − 1 = [A + B/(C−λ⁻²)] · (P/T)</div>
+      </div>
+
+      <div class="module-card reveal">
+        <span class="module-index">03</span>
+        <div class="module-name">Turbulence & Scintillation</div>
+        <div class="module-sub">opticlens.turbulence.rytov</div>
+        <p class="module-desc">Kolmogorov-Obukhov structure function and Rytov log-amplitude variance model. Fried coherence length r₀ for adaptive optics scheduling at astronomical observatories and long-range imaging systems.</p>
+        <div class="module-eq">σ_χ² = 0.563 · k^(7/6) · ∫ Cₙ²(z) · z^(5/6) dz</div>
+      </div>
+
+      <div class="module-card reveal">
+        <span class="module-index">04</span>
+        <div class="module-name">Radiative Transfer</div>
+        <div class="module-sub">opticlens.transfer.disort</div>
+        <p class="module-desc">DISORT discrete ordinate solver for up to 50 atmospheric layers. Beer-Lambert-Bouguer direct beam transmittance with Ångström exponent parameterization. Multiple scattering treatment for τ > 0.3.</p>
+        <div class="module-eq">τ(λ) = β · (λ/λ₀)^(−α)</div>
+      </div>
+
+      <div class="module-card reveal">
+        <span class="module-index">05</span>
+        <div class="module-name">Physics-Informed NNs</div>
+        <div class="module-sub">opticlens.pinn.core</div>
+        <p class="module-desc">12-layer ResNet trained with composite physics + data + boundary condition loss. 50,000 collocation points. Real-time optical property interpolation between sparse sensor locations across the atmospheric domain.</p>
+        <div class="module-eq">L = λ_phys·L_phys + λ_data·L_data + λ_BC·L_BC</div>
+      </div>
+
+      <div class="module-card reveal" style="background: rgba(0,212,255,0.02); border: 1px solid rgba(0,212,255,0.15);">
+        <span class="module-index" style="color: rgba(255,184,0,0.15);">→</span>
+        <div class="module-name" style="color: var(--amber);">Ray-Tracing Engine</div>
+        <div class="module-sub">opticlens.ray.tracer</div>
+        <p class="module-desc">Volumetric 4th-order Runge-Kutta ray propagation through 3D refractive index fields. GPU-accelerated CUDA kernels reduce 10⁶ photon computation from ~20 minutes (CPU) to ~12 seconds (NVIDIA A100).</p>
+        <div class="module-eq">d(n · dr/ds)/ds = ∇n(r)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipeline" class="pipeline-section">
+  <div class="section-inner">
+    <span class="section-tag reveal">Data Flow</span>
+    <h2 class="section-title reveal">Observation to<br>Optical Output</h2>
+    <p class="section-body reveal">
+      Four observational pillars feed into a unified computational pipeline
+      updated every 15 minutes synchronized with MODIS overpass times.
+    </p>
+
+    <div class="pipeline reveal">
+      <div class="pipe-step">
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-num">01</div>
+        <div class="pipe-name">Hyperspectral Imaging</div>
+        <div class="pipe-desc">350–2500 nm · ≤3 nm resolution · DOAS spectral fitting</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-num">02</div>
+        <div class="pipe-name">Lidar Profiling</div>
+        <div class="pipe-desc">532 & 1064 nm · 7.5 m vertical resolution · 20 km range</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-num">03</div>
+        <div class="pipe-name">Satellite Products</div>
+        <div class="pipe-desc">MODIS · CALIPSO · AERONET Level 2.0</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-num">04</div>
+        <div class="pipe-name">PINN Inference</div>
+        <div class="pipe-desc">Physics-constrained interpolation · 15-min update cycle</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-num">05</div>
+        <div class="pipe-name">Optical Output</div>
+        <div class="pipe-desc">τ(λ) · Cₙ² · r₀ · δy · θ_halo · Dashboard</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE -->
+<section id="code" class="code-section">
+  <div class="section-inner">
+    <span class="section-tag reveal">Quick Start</span>
+    <h2 class="section-title reveal">Production-Ready<br>Python API</h2>
+
+    <div class="code-wrap">
+      <div class="code-block reveal">
+        <div class="code-header">
+          <div class="code-dot"></div>
+          <div class="code-dot"></div>
+          <div class="code-dot"></div>
+          <span class="code-filename">mie_example.py</span>
+        </div>
+        <div class="code-body"><pre><span class="c-comment"># Install from PyPI</span>
+<span class="c-comment"># pip install opticlens</span>
+
+<span class="c-kw">from</span> opticlens.scattering.mie_v10 <span class="c-kw">import</span> Q_ext
+<span class="c-kw">from</span> opticlens.turbulence.rytov <span class="c-kw">import</span> scintillation
+<span class="c-kw">from</span> opticlens.refraction.edlen <span class="c-kw">import</span> refractive_index
+
+<span class="c-comment"># Mie extinction efficiency</span>
+x = <span class="c-num">2.0</span>   <span class="c-comment"># size parameter</span>
+m = <span class="c-num">1.5</span> + <span class="c-num">0.01j</span>   <span class="c-comment"># complex RI</span>
+Q = <span class="c-fn">Q_ext</span>(x, m)
+<span class="c-fn">print</span>(<span class="c-str">f"Q_ext = {Q:.4f}"</span>)  <span class="c-comment"># 3.2100</span>
+
+<span class="c-comment"># Rytov scintillation index</span>
+sigma2 = <span class="c-fn">scintillation</span>(
+    Cn2=<span class="c-num">1e-14</span>,
+    wavelength=<span class="c-num">0.532e-6</span>,
+    path_length=<span class="c-num">5000</span>
+)
+<span class="c-fn">print</span>(<span class="c-str">f"σ_χ² = {sigma2:.4e}"</span>)
+
+<span class="c-comment"># Edlén refractive index</span>
+n = <span class="c-fn">refractive_index</span>(
+    P=<span class="c-num">101325</span>,   <span class="c-comment"># Pa</span>
+    T=<span class="c-num">293.15</span>,   <span class="c-comment"># K</span>
+    lam=<span class="c-num">0.55</span>    <span class="c-comment"># μm</span>
+)
+<span class="c-fn">print</span>(<span class="c-str">f"n = {n:.8f}"</span>)</pre></div>
+      </div>
+
+      <div class="code-block reveal">
+        <div class="code-header">
+          <div class="code-dot"></div>
+          <div class="code-dot"></div>
+          <div class="code-dot"></div>
+          <span class="code-filename">pinn_inference.py</span>
+        </div>
+        <div class="code-body"><pre><span class="c-kw">from</span> opticlens.pinn.core <span class="c-kw">import</span> AtmosphericPINN
+<span class="c-kw">import</span> numpy <span class="c-kw">as</span> np
+
+<span class="c-comment"># Initialize PINN framework</span>
+model = <span class="c-cls">AtmosphericPINN</span>(
+    layers=<span class="c-num">12</span>,
+    collocation_pts=<span class="c-num">50000</span>,
+    lambda_phys=<span class="c-num">1.0</span>,
+    lambda_data=<span class="c-num">1.0</span>,
+    lambda_bc=<span class="c-num">0.5</span>
+)
+
+<span class="c-comment"># Train on atmospheric state vector</span>
+state = {
+    <span class="c-str">'P'</span>: np.<span class="c-fn">array</span>([<span class="c-num">101325</span>]),
+    <span class="c-str">'T'</span>: np.<span class="c-fn">array</span>([<span class="c-num">293.15</span>]),
+    <span class="c-str">'RH'</span>: np.<span class="c-fn">array</span>([<span class="c-num">45.0</span>]),
+    <span class="c-str">'wavelengths'</span>: np.<span class="c-fn">array</span>(
+        [<span class="c-num">440</span>, <span class="c-num">675</span>, <span class="c-num">870</span>, <span class="c-num">1020</span>]
+    )
+}
+
+<span class="c-comment"># Real-time optical property output</span>
+output = model.<span class="c-fn">predict</span>(state)
+<span class="c-fn">print</span>(<span class="c-str">f"AOD τ(440) = {output['tau'][0]:.4f}"</span>)
+<span class="c-fn">print</span>(<span class="c-str">f"Fried r₀   = {output['r0']:.3f} m"</span>)
+<span class="c-fn">print</span>(<span class="c-str">f"Cn²(z)     = {output['Cn2']:.2e}"</span>)</pre></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALIDATION -->
+<section id="validation" class="validation-section">
+  <div class="section-inner">
+    <span class="section-tag reveal">Scientific Rigor</span>
+    <h2 class="section-title reveal">Three-Tier<br>Validation Strategy</h2>
+    <p class="section-body reveal">
+      Independent validation across analytical benchmarks, field campaigns,
+      and global satellite climatologies ensures physically complete accuracy.
+    </p>
+
+    <div class="val-grid">
+      <div class="val-card reveal">
+        <div class="val-source">Bohren & Huffman</div>
+        <div class="val-type">Tier 1 · Analytical Benchmark</div>
+        <p class="val-criterion">Mie code validated across size parameter 0.001 &lt; x &lt; 1000 and complex refractive indices spanning absorbing and non-absorbing particles.</p>
+        <div class="val-target">Target: ε &lt; 10⁻⁶ relative error</div>
+      </div>
+
+      <div class="val-card reveal">
+        <div class="val-source">AERONET</div>
+        <div class="val-type">Tier 2 · Field Campaign</div>
+        <p class="val-criterion">15 globally distributed stations across marine, continental, urban, and dust regimes. Level 2.0 cloud-screened data at 440, 675, 870, 1020 nm.</p>
+        <div class="val-target">Target: bias &lt; 0.02 + 0.05τ</div>
+      </div>
+
+      <div class="val-card reveal">
+        <div class="val-source">MODIS C6.1</div>
+        <div class="val-type">Tier 3 · Satellite Climatology</div>
+        <p class="val-criterion">Global aerosol optical depth compared against Dark Target and Deep Blue combined product over 12-month period, stratified by surface type.</p>
+        <div class="val-target">Target: FEES ≥ 65% (maritime)</div>
+      </div>
+
+      <div class="val-card reveal">
+        <div class="val-source">ARM SGP Site</div>
+        <div class="val-type">Turbulence Validation</div>
+        <p class="val-criterion">Lidar-derived Cn²(z) profiles compared against simultaneous sonic anemometer CT² measurements at three-axis, 20 Hz sampling rate.</p>
+        <div class="val-target">Target: log-RMSE &lt; 20%</div>
+      </div>
+
+      <div class="val-card reveal">
+        <div class="val-source">CALIPSO L2</div>
+        <div class="val-type">Lidar Profile Comparison</div>
+        <p class="val-criterion">Version 4.2 aerosol profile product at 5 km horizontal resolution. Vertical resolution 60 m below 8.2 km for aerosol backscatter validation.</p>
+        <div class="val-target">Target: profile bias &lt; 10%</div>
+      </div>
+
+      <div class="val-card reveal">
+        <div class="val-source">RAMI-V</div>
+        <div class="val-type">Radiative Transfer Benchmark</div>
+        <p class="val-criterion">DISORT solver benchmarked against Radiation Model Intercomparison test cases for homogeneous plane-parallel scattering atmospheres.</p>
+        <div class="val-target">Target: radiance accuracy &lt; 0.1%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER (تم الإصلاح) -->
+<footer>
+  <div class="footer-grid">
+    <!-- About -->
+    <div class="footer-col">
+      <h4>🔭 OPTIC·LENS</h4>
+      <p>Optical Phenomena, Turbulence & Imaging</p>
+      <p>Light Environmental Nonlinearity System</p>
+      <p style="margin-top: 0.5rem; color: var(--amber);">v10.0.0 · CC BY 4.0</p>
+    </div>
+
+    <!-- Resources -->
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="/dashboard">🌐 Dashboard</a>
+      <a href="/documentation">📚 Documentation</a>
+      <a href="/reports">📖 Reports</a>
+      <a href="https://github.com/gitdeeper8/opticlens">💻 GitHub</a>
+      <a href="https://gitlab.com/gitdeeper8/opticlens">🦊 GitLab</a>
+      <a href="https://bitbucket.org/gitdeeper08/opticlens">🪣 Bitbucket</a>
+      <a href="https://codeberg.org/gitdeeper8/opticlens">🏔️ Codeberg</a>
+    </div>
+
+    <!-- Related Works -->
+    <div class="footer-col">
+      <h4>Related Works</h4>
+      <a href="https://pypi.org/project/opticlens/"><strong>📦 Software:</strong> PyPI</a>
+      <a href="https://doi.org/10.17605/OSF.IO/4QK59"><strong>📝 Preprint:</strong> 10.17605/OSF.IO/4QK59</a>
+      <a href="https://doi.org/10.5281/zenodo.18907508"><strong>🏷️ Zenodo:</strong> 10.5281/zenodo.18907508</a>
+      <a href="https://osf.io/ek5ru"><strong>🔬 OSF:</strong> Project</a>
+    </div>
+
+    <!-- External Data -->
+    <div class="footer-col">
+      <h4>External Data</h4>
+      <a href="https://aeronet.gsfc.nasa.gov">🌍 AERONET</a>
+      <a href="https://modis.gsfc.nasa.gov">🛰️ MODIS</a>
+      <a href="https://www-calipso.larc.nasa.gov">🛰️ CALIPSO</a>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="footer-bottom">
+    <div class="footer-copyright">
+      Copyright © OPTIC-LENS 🔭 2026 | All rights reserved
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── STARFIELD ──
+const canvas = document.getElementById('starfield');
+const ctx = canvas.getContext('2d');
+let stars = [];
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function initStars() {
+  stars = [];
+  for (let i = 0; i < 180; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.2,
+      a: Math.random(),
+      speed: 0.0003 + Math.random() * 0.0005,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function drawStars(t) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  stars.forEach(s => {
+    const alpha = s.a * (0.4 + 0.6 * Math.sin(s.phase + t * s.speed * 1000));
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(200,230,255,${alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+
+window.addEventListener('resize', () => { resize(); initStars(); });
+resize();
+initStars();
+requestAnimationFrame(drawStars);
+
+// ── SCROLL REVEAL ──
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.1 });
+
+reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

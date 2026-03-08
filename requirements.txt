@@ -1,0 +1,7 @@
+# OPTICLENS Core Dependencies
+numpy>=1.21.0
+scipy>=1.7.0
+
+# Optional for development
+# pytest>=7.0.0
+# matplotlib>=3.7.0

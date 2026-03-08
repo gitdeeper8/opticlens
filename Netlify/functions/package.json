@@ -1,0 +1,8 @@
+{
+  "name": "opticlens-functions",
+  "version": "10.0.0",
+  "description": "OPTICLENS Netlify Functions - Atmospheric Optics Framework",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}

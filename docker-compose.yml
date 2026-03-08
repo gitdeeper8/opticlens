@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    image: opticlens:latest
+    container_name: opticlens-api
+    command: python -m opticlens.api.fastapi_app
+    ports:
+      - "8000:8000"
+    environment:
+      - OPTICLENS_ENV=production
+      - OPTICLENS_CONFIG=/app/config/config.yaml
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+    networks:
+      - opticlens-network
+    restart: unless-stopped
+
+  dashboard:
+    build: .
+    image: opticlens:latest
+    container_name: opticlens-dashboard
+    command: streamlit run dashboard/app.py --server.port 8501
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://api:8000
+    depends_on:
+      - api
+    networks:
+      - opticlens-network
+    restart: unless-stopped
+
+  processor:
+    build: .
+    image: opticlens:latest
+    container_name: opticlens-processor
+    command: python -m opticlens.core.processor
+    environment:
+      - OPTICLENS_ENV=production
+      - OPTICLENS_CONFIG=/app/config/config.yaml
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+    depends_on:
+      - api
+      - redis
+    networks:
+      - opticlens-network
+    restart: unless-stopped
+
+  postgres:
+    image: timescale/timescaledb:latest-pg14
+    container_name: opticlens-postgres
+    environment:
+      - POSTGRES_DB=opticlens
+      - POSTGRES_USER=opticlens_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - opticlens-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: opticlens-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - opticlens-network
+    restart: unless-stopped
+
+networks:
+  opticlens-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

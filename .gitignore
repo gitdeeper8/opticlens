@@ -1,0 +1,37 @@
+# 🔒 SECURITY - NEVER REMOVE THESE
+upload_magion.py
+upload_magion_fixed.py
+*.token
+*.secret
+.env
+.env.*
+.secrets/
+credentials*
+**/token*
+**/secret*
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+venv/
+env/
+.venv/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store

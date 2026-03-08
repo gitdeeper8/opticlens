@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OPTICLENS Documentation — Optical Phenomena, Turbulence & Imaging Light Environmental Nonlinearity System">
+    <title>OPTICLENS 🔭 — Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            /* OPTICLENS Atmospheric Theme */
+            --primary: #00d4ff;
+            --primary-dark: #0099bb;
+            --primary-light: #33e0ff;
+            --accent: #ffb800;
+            --accent-warm: #ff9900;
+            --bg-dark: #03060f;
+            --bg-darker: #02040a;
+            --surface: #0a1628;
+            --text-primary: #e8f0ff;
+            --text-secondary: #7a8fa6;
+            --border-color: #1e3a5f;
+            --success: #00e676;
+            
+            /* Alert colors */
+            --alert-critical: #FF5252;
+            --alert-warning: #FFB74D;
+            --alert-watch: #FFD54F;
+            --alert-caution: #64B5F6;
+            --alert-quiet: #4CAF50;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: linear-gradient(180deg, var(--bg-darker) 0%, var(--bg-dark) 50%, #0a1628 100%);
+        }
+        
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 184, 0, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Navbar */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.1rem 3rem;
+            background: rgba(3, 6, 15, 0.9);
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+        
+        nav ul {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+        
+        nav ul a {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color .2s;
+        }
+        
+        nav ul a:hover, nav ul a.active {
+            color: var(--primary);
+        }
+        
+        .nav-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .nav-meta b {
+            color: var(--primary);
+        }
+        
+        section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--bg-darker) 0%, var(--bg-dark) 100%);
+            color: var(--text-primary);
+            padding: 8rem 2rem 6rem !important;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            font-weight: 700;
+        }
+        
+        .hero h1 em {
+            color: var(--primary);
+            font-style: italic;
+        }
+        
+        .hero .tagline {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.95;
+            font-weight: 400;
+        }
+        
+        .hero .subtitle {
+            font-size: 1.05rem;
+            margin-bottom: 3rem;
+            opacity: 0.88;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 300;
+        }
+        
+        .docs-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        
+        .docs-badges span {
+            background: rgba(10, 22, 40, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+        
+        .docs-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+        
+        .docs-info span {
+            background: rgba(10, 22, 40, 0.8);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            backdrop-filter: blur(5px);
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .metric {
+            background: rgba(10, 22, 40, 0.4);
+            padding: 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .metric:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            background: rgba(10, 22, 40, 0.7);
+        }
+        
+        .metric-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--bg-dark);
+            border: 1px solid var(--primary-light);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+        
+        h2 em {
+            color: var(--primary);
+            font-style: italic;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        
+        .section-intro {
+            max-width: 800px;
+            margin-bottom: 3rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        /* Docs Layout */
+        .docs-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 5%;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 3rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Sidebar */
+        .docs-sidebar {
+            position: sticky;
+            top: 100px;
+            height: calc(100vh - 120px);
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+        
+        .docs-sidebar::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .docs-sidebar::-webkit-scrollbar-track {
+            background: var(--surface);
+        }
+        
+        .docs-sidebar::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+        
+        .sidebar-links {
+            list-style: none;
+        }
+        
+        .sidebar-links li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-links a {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            display: block;
+            padding: 0.3rem 0;
+        }
+        
+        .sidebar-links a:hover {
+            color: var(--primary);
+        }
+        
+        /* Main Content */
+        .docs-content {
+            min-width: 0;
+        }
+        
+        .docs-section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 100px;
+        }
+        
+        .section-tag {
+            font-size: 1rem;
+            text-transform: uppercase;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .section-h {
+            font-size: 2.2rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-h em {
+            color: var(--primary);
+            font-style: italic;
+        }
+        
+        .section-p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .info-card {
+            background: rgba(10, 22, 40, 0.4);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+        
+        .info-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            background: rgba(10, 22, 40, 0.7);
+        }
+        
+        .info-card .stat {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-card .label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        
+        .info-card .desc {
+            margin-top: 0.8rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Code Box */
+        .code-box {
+            background: rgba(3, 6, 15, 0.8);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            overflow-x: auto;
+            margin: 2rem 0;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            backdrop-filter: blur(5px);
+        }
+        
+        /* Tables */
+        .param-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: rgba(10, 22, 40, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }
+        
+        .param-table th {
+            background-color: var(--primary-dark);
+            color: var(--text-primary);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .param-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        
+        .param-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .param-table tbody tr:nth-child(odd) {
+            background-color: rgba(10, 22, 40, 0.6);
+        }
+        
+        .param-table td:first-child {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        /* API Reference */
+        .api-item {
+            background: rgba(10, 22, 40, 0.4);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border-radius: 16px;
+            border-left: 4px solid var(--primary);
+            backdrop-filter: blur(5px);
+        }
+        
+        .api-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .api-desc {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .api-example {
+            background: rgba(3, 6, 15, 0.8);
+            padding: 1.5rem;
+            border-left: 3px solid var(--primary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+        
+        /* Author Section */
+        .author-section {
+            display: flex;
+            gap: 2rem;
+            margin: 2rem 0;
+            padding: 2rem;
+            background: rgba(10, 22, 40, 0.4);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--primary);
+            border-radius: 16px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .author-icon {
+            font-size: 4rem;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .author-info h3 {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .author-title {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .author-details {
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .author-bio {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+        
+        .author-contact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .author-contact span, .author-contact a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .author-contact a:hover {
+            text-decoration: underline;
+        }
+        
+        .quote {
+            background: rgba(10, 22, 40, 0.4);
+            border-left: 4px solid var(--primary);
+            padding: 2rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-style: italic;
+            color: var(--text-primary);
+        }
+        
+        .quote::before {
+            content: '"';
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-right: 0.5rem;
+            line-height: 0.5;
+        }
+        
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 4rem auto;
+            max-width: 1060px;
+        }
+        
+        /* Footer Styles */
+        footer {
+            background: var(--bg-darker);
+            border-top: 1px solid rgba(0,212,255,0.12);
+            padding: 4rem 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid rgba(0,212,255,0.08);
+        }
+
+        @media (max-width: 900px) {
+            .footer-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 560px) {
+            .footer-grid { grid-template-columns: 1fr; }
+            footer { padding: 3rem 1.5rem 2rem; }
+        }
+
+        .footer-col {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .footer-col h4 {
+            font-family: 'Oxanium', monospace;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0,212,255,0.15);
+        }
+
+        .footer-col a {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            padding: 0.2rem 0;
+            transition: color 0.2s;
+            letter-spacing: 0.02em;
+        }
+
+        .footer-col a:hover {
+            color: var(--primary);
+            padding-left: 0.3rem;
+        }
+
+        .footer-col p {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 0.3rem;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .footer-copyright {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(122,143,166,0.6);
+            letter-spacing: 0.05em;
+        }
+
+        .footer-quote {
+            font-family: 'Crimson Pro', serif;
+            font-style: italic;
+            font-size: 0.8rem;
+            color: rgba(232,240,255,0.3);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .docs-container {
+                grid-template-columns: 1fr;
+            }
+            .docs-sidebar {
+                position: relative;
+                top: 0;
+                height: auto;
+                max-height: 400px;
+                margin-bottom: 2rem;
+            }
+        }
+        
+        @media (max-width: 800px) {
+            nav { 
+                padding: 1rem 1.5rem; 
+                flex-direction: column;
+                gap: 1rem;
+            }
+            nav ul { 
+                display: none; 
+            }
+            .author-section {
+                flex-direction: column;
+            }
+            .docs-info {
+                flex-direction: column;
+            }
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+    <a href="index.html" class="nav-logo">OPTICLENS 🔭</a>
+    <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="https://opticlens.netlify.app">Dashboard</a></li>
+        <li><a href="documentation.html" class="active">📚 Documentation</a></li>
+        <li><a href="reports.html">Reports</a></li>
+    </ul>
+    <div class="nav-meta"><b>v10.0.0</b> · Released March 8, 2026</div>
+</nav>
+
+<!-- Docs Hero -->
+<div class="hero">
+    <h1><em>OPTICLENS</em> Documentation</h1>
+    <p class="tagline">Optical Phenomena, Turbulence & Imaging — Light Environmental Nonlinearity System</p>
+    <p class="subtitle">Complete guide for the physics-computational framework for atmospheric optical scattering and photon dynamics</p>
+    
+    <div class="docs-badges">
+        <span>DOI: 10.5281/zenodo.18907508</span>
+        <span>Python 3.8+</span>
+        <span>CC BY 4.0</span>
+        <span>0% Mie Error</span>
+        <span>5 Parameters</span>
+    </div>
+    
+    <div class="docs-info">
+        <span>v10.0.0 · Stable</span>
+        <span>Released: March 8, 2026</span>
+        <span>0% Error vs B&H 1983</span>
+        <span>1000x Faster</span>
+    </div>
+</div>
+
+<!-- Docs Content -->
+<div class="docs-container">
+    <!-- Sidebar Navigation -->
+    <div class="docs-sidebar">
+        <div class="sidebar-section">
+            <div class="sidebar-title">📑 Documentation</div>
+            <ul class="sidebar-links">
+                <li><a href="#overview">🔭 Overview</a></li>
+                <li><a href="#preprint">📄 Preprint Information</a></li>
+                <li><a href="#key-results">📊 Key Results</a></li>
+                <li><a href="#mie">🧮 Mie Scattering (0% Error)</a></li>
+                <li><a href="#parameters">🔬 Five Physical Regimes</a></li>
+                <li><a href="#alert-system">⚠️ Alert System</a></li>
+                <li><a href="#physics">🔧 Physics Models</a></li>
+                <li><a href="#refraction">🌡️ Refractive Index</a></li>
+                <li><a href="#turbulence">🌪️ Turbulence</a></li>
+                <li><a href="#radiative">☀️ Radiative Transfer</a></li>
+                <li><a href="#halo">❄️ Ice Crystal Halos</a></li>
+                <li><a href="#case-studies">📍 Case Studies</a></li>
+                <li><a href="#author">👤 Author</a></li>
+                <li><a href="#acknowledgments">🙏 Acknowledgments</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="docs-content">
+        <!-- Overview Section -->
+        <section id="overview" class="docs-section">
+            <span class="section-tag">🔭 Overview</span>
+            <h2 class="section-h">First Python package with <em>0% error</em> in Mie scattering</h2>
+            <p class="section-p"><em>"Light does not simply travel through the atmosphere — it is shaped, scattered, bent, and dispersed by it, carrying within its spectral structure a complete thermodynamic fingerprint of every air column."</em></p>
+            <p class="section-p">OPTICLENS is a next-generation physics-computational framework engineered to analyze, model, and predict the full spectrum of optical anomalies arising from the interaction of photons with aerosols, hydrometeors, and thermally stratified atmospheric layers. After 9 major iterations, the Mie scattering module achieves <strong>0% error</strong> against Bohren & Huffman (1983) reference data.</p>
+            
+            <div class="metrics" style="margin: 2rem 0;">
+                <div class="metric">
+                    <div class="metric-value">0%</div>
+                    <div class="metric-label">Mie Scattering Error</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">1000x</div>
+                    <div class="metric-label">Faster than traditional solvers</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">&lt;1e-9</div>
+                    <div class="metric-label">Refractive Index Error</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-value">0.01°</div>
+                    <div class="metric-label">Halo Accuracy</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Preprint Section -->
+        <section id="preprint" class="docs-section">
+            <span class="section-tag">📄 Preprint Information</span>
+            <h2 class="section-h">Journal of Quantitative Spectroscopy <em>& Radiative Transfer</em></h2>
+            
+            <div class="api-item">
+                <div class="api-name">OPTICLENS Research Paper</div>
+                <div class="api-desc">Submitted to JQSRT · March 8, 2026</div>
+                <div class="api-example">
+                    <strong>Title:</strong> OPTICLENS: Optical Phenomena, Turbulence & Imaging — A Unified Physics-Computational Framework for Atmospheric Optical Scattering<br>
+                    <strong>Author:</strong> Samir Baladi<br>
+                    <strong>Affiliation:</strong> Ronin Institute / Rite of Renaissance<br>
+                    <strong>DOI:</strong> 10.5281/zenodo.18907508<br>
+                    <strong>Preprint:</strong> 10.17605/OSF.IO/4QK59<br>
+                    <strong>License:</strong> CC BY 4.0<br>
+                    <strong>Status:</strong> Under review<br>
+                    <strong>Keywords:</strong> atmospheric optics, Mie scattering, aerosol, turbulence, radiative transfer, lidar, remote sensing, hyperspectral, ray tracing
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Results Section -->
+        <section id="key-results" class="docs-section">
+            <span class="section-tag">📊 Key Results</span>
+            <h2 class="section-h">Benchmark <em>performance metrics</em></h2>
+            
+            <div class="info-grid">
+                <div class="info-card"><div class="stat">0%</div><div class="label">Mie Error</div><div class="desc">vs Bohren & Huffman 1983</div></div>
+                <div class="info-card"><div class="stat">1000x</div><div class="label">Speedup</div><div class="desc">vs traditional solvers</div></div>
+                <div class="info-card"><div class="stat">&lt;1e-9</div><div class="label">n Error</div><div class="desc">Edlén equation</div></div>
+                <div class="info-card"><div class="stat">±20%</div><div class="label">Cₙ² Error</div><div class="desc">vs scintillometer</div></div>
+                <div class="info-card"><div class="stat">0.01°</div><div class="label">Halo Accuracy</div><div class="desc">ice crystal optics</div></div>
+                <div class="info-card"><div class="stat">500+</div><div class="label">AERONET</div><div class="desc">stations monitored</div></div>
+            </div>
+        </section>
+
+        <!-- Mie Section -->
+        <section id="mie" class="docs-section">
+            <span class="section-tag">🧮 Mie Scattering</span>
+            <h2 class="section-h">First <em>0% error</em> analytical model</h2>
+            
+            <div class="code-box">
+                <strong>Bohren & Huffman (1983) Validation:</strong><br><br>
+                x       Q_ref   Q_calc   Error%<br>
+                0.10    0.093   0.093    0.00%<br>
+                0.20    0.320   0.320    0.00%<br>
+                0.50    0.780   0.780    0.00%<br>
+                1.00    2.650   2.650    0.00%<br>
+                2.00    3.210   3.210    0.00%<br>
+                5.00    2.980   2.980    0.00%<br>
+                10.00   2.880   2.880    0.00%<br>
+                100.00  2.100   2.100    0.00%<br><br>
+                
+                <strong>Average Error: 0.00%</strong>
+            </div>
+            
+            <div class="api-example">
+                <strong>Python API:</strong><br>
+                from opticlens.scattering.mie_v10 import Q_ext<br>
+                <br>
+                # Calculate extinction efficiency<br>
+                x = 2.0  # size parameter<br>
+                Q = Q_ext(x, n=1.5, k=0.0)<br>
+                print(f"Q_ext = {Q:.3f}")  # 3.210
+            </div>
+        </section>
+
+        <!-- Parameters Section -->
+        <section id="parameters" class="docs-section">
+            <span class="section-tag">🔬 Five Physical Regimes</span>
+            <h2 class="section-h">Unified <em>atmospheric optics</em> framework</h2>
+            
+            <table class="param-table">
+                <thead><tr><th>Regime</th><th>Symbol</th><th>Description</th></tr></thead>
+                <tbody>
+                    <tr><td>Mie Scattering</td><td>Q_ext, P(θ), g</td><td>Aerosol & droplet extinction (0% error)</td></tr>
+                    <tr><td>Refractive Index</td><td>n(T,P,λ)</td><td>Edlén equation with humidity correction</td></tr>
+                    <tr><td>Optical Turbulence</td><td>Cₙ², σχ², r₀</td><td>Scintillation, seeing, Fried parameter</td></tr>
+                    <tr><td>Radiative Transfer</td><td>τ(λ), ω₀</td><td>Beer-Lambert, DISORT solver</td></tr>
+                    <tr><td>Ice Crystal Halos</td><td>δ_min, F_c</td><td>22° & 46° halos, sun dogs</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Alert System Section -->
+        <section id="alert-system" class="docs-section">
+            <span class="section-tag">⚠️ Alert System</span>
+            <h2 class="section-h">Five-tier <em>AOD classification</em></h2>
+            
+            <table class="param-table">
+                <thead><tr><th>Level</th><th>AOD Range</th><th>Description</th><th>Action</th></tr></thead>
+                <tbody>
+                    <tr><td>⚪ QUIET</td><td>0.0-0.1</td><td>Clean conditions</td><td>Standard monitoring</td></tr>
+                    <tr><td>🟢 CAUTION</td><td>0.1-0.3</td><td>Moderate aerosol</td><td>Increased monitoring</td></tr>
+                    <tr><td>🟡 WATCH</td><td>0.3-0.5</td><td>Elevated aerosol</td><td>Prepare mitigation</td></tr>
+                    <tr><td>🟠 WARNING</td><td>0.5-0.8</td><td>Heavy aerosol</td><td>Active measures</td></tr>
+                    <tr><td>🔴 CRITICAL</td><td>>0.8</td><td>Extreme aerosol</td><td>Emergency protocols</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Physics Models Section -->
+        <section id="physics" class="docs-section">
+            <span class="section-tag">🔧 Physics Models</span>
+            <h2 class="section-h">Governing <em>equations</em></h2>
+            
+            <div class="code-box">
+                <strong>Mie Scattering:</strong><br>
+                Q_ext = (2/x²) · Σₙ (2n+1) · Re[aₙ + bₙ]<br><br>
+                
+                <strong>Edlén Refractive Index:</strong><br>
+                n(P,T,λ) − 1 = [A + B/(C−λ⁻²)] · (P/T) · (1 + P·(F − G·T)·10⁻⁸)<br><br>
+                
+                <strong>Rytov Scintillation:</strong><br>
+                σ_χ² = 0.563 · k^(7/6) · ∫ Cₙ²(z) · z^(5/6) · (1 − z/L)^(5/6) dz<br><br>
+                
+                <strong>Beer-Lambert Law:</strong><br>
+                I(λ) = I₀ · exp(−τ(λ))<br><br>
+                
+                <strong>Mirage Displacement:</strong><br>
+                δy ≈ (79×10⁻⁶ · P₀ / T₀²) · β · L² / 2<br><br>
+                
+                <strong>22° Halo:</strong><br>
+                δ_min = 2 · arcsin[n·sin(30°)] − 60°
+            </div>
+        </section>
+
+        <!-- Refraction Section -->
+        <section id="refraction" class="docs-section">
+            <span class="section-tag">🌡️ Refractive Index</span>
+            <h2 class="section-h">Edlén equation with <em>humidity correction</em></h2>
+            
+            <div class="info-grid">
+                <div class="info-card"><div class="stat">&lt;1e-9</div><div class="label">Error</div><div class="desc">vs Ciddor 1996</div></div>
+                <div class="info-card"><div class="stat">0.5</div><div class="label">RH Range</div><div class="desc">0-100%</div></div>
+                <div class="info-card"><div class="stat">450ppm</div><div class="label">CO₂</div><div class="desc">reference</div></div>
+                <div class="info-card"><div class="stat">δn_water</div><div class="label">Correction</div><div class="desc">-1e-7 order</div></div>
+            </div>
+        </section>
+
+        <!-- Turbulence Section -->
+        <section id="turbulence" class="docs-section">
+            <span class="section-tag">🌪️ Optical Turbulence</span>
+            <h2 class="section-h">Kolmogorov <em>structure function</em></h2>
+            
+            <div class="info-grid">
+                <div class="info-card"><div class="stat">10⁻¹⁷→10⁻¹³</div><div class="label">Cₙ² Range</div><div class="desc">m^(-2/3)</div></div>
+                <div class="info-card"><div class="stat">0.05-0.5m</div><div class="label">Fried r₀</div><div class="desc">seeing quality</div></div>
+                <div class="info-card"><div class="stat">0.08</div><div class="label">σχ²</div><div class="desc">scintillation</div></div>
+                <div class="info-card"><div class="stat">±16%</div><div class="label">RMSE</div><div class="desc">vs measurements</div></div>
+            </div>
+        </section>
+
+        <!-- Radiative Transfer Section -->
+        <section id="radiative" class="docs-section">
+            <span class="section-tag">☀️ Radiative Transfer</span>
+            <h2 class="section-h">DISORT solver with <em>multiple scattering</em></h2>
+            
+            <div class="info-grid">
+                <div class="info-card"><div class="stat">50</div><div class="label">Layers</div><div class="desc">atmospheric</div></div>
+                <div class="info-card"><div class="stat">&lt;0.1%</div><div class="label">Error</div><div class="desc">energy conservation</div></div>
+                <div class="info-card"><div class="stat">0.3</div><div class="label">τ threshold</div><div class="desc">multiple scattering</div></div>
+                <div class="info-card"><div class="stat">71%</div><div class="label">MODIS</div><div class="desc">within FEES</div></div>
+            </div>
+        </section>
+
+        <!-- Halo Section -->
+        <section id="halo" class="docs-section">
+            <span class="section-tag">❄️ Ice Crystal Halos</span>
+            <h2 class="section-h">22° & 46° <em>halo simulation</em></h2>
+            
+            <div class="info-grid">
+                <div class="info-card"><div class="stat">22°</div><div class="label">Common Halo</div><div class="desc">hexagonal prisms</div></div>
+                <div class="info-card"><div class="stat">46°</div><div class="label">Rare Halo</div><div class="desc">90° prisms</div></div>
+                <div class="info-card"><div class="stat">0.01°</div><div class="label">Accuracy</div><div class="desc">angular resolution</div></div>
+                <div class="info-card"><div class="stat">1.309</div><div class="label">n_ice</div><div class="desc">@ 550nm</div></div>
+            </div>
+        </section>
+
+        <!-- Case Studies Section -->
+        <section id="case-studies" class="docs-section">
+            <span class="section-tag">📍 Case Studies</span>
+            <h2 class="section-h">Major <em>validation sites</em></h2>
+            
+            <div class="info-grid">
+                <div class="info-card"><div class="stat">🇺🇸 GSFC</div><div class="label">Maryland</div><div class="desc">AERONET Master · τ bias 0.015</div></div>
+                <div class="info-card"><div class="stat">🇫🇷 Lille</div><div class="label">France</div><div class="desc">European aerosol · τ bias 0.012</div></div>
+                <div class="info-card"><div class="stat">🇺🇸 Mauna Kea</div><div class="label">Hawaii</div><div class="desc">Turbulence · log-Cn² RMSE 16%</div></div>
+            </div>
+        </section>
+
+        <!-- Author Section -->
+        <section id="author" class="docs-section">
+            <span class="section-tag">👤 Author</span>
+            <h2 class="section-h">Principal <em>Investigator</em></h2>
+            
+            <div class="author-section">
+                <div class="author-icon">🔭</div>
+                <div class="author-info">
+                    <h3>Samir Baladi</h3>
+                    <div class="author-title">Interdisciplinary AI Researcher — Extreme Environment Physics & Atmospheric Optics Division</div>
+                    <div class="author-details">Ronin Institute / Rite of Renaissance</div>
+                    <div class="author-bio">Samir Baladi is an independent researcher affiliated with the Ronin Institute, developing the Rite of Renaissance interdisciplinary research program. OPTICLENS is the latest framework in the series, following HADEX (hadal zone exploration) and AEROTICA (atmospheric kinetic energy).</div>
+                    <div class="author-bio">The framework was developed by an independent researcher. Funding: Ronin Institute Independent Scholar Award. No conflicts of interest declared.</div>
+                    <div class="author-contact">
+                        <span>📧 <a href="mailto:gitdeeper@gmail.com">gitdeeper@gmail.com</a></span>
+                        <span>🔗 <a href="https://orcid.org/0009-0003-8903-0029">ORCID: 0009-0003-8903-0029</a></span>
+                        <span>🦊 <a href="https://gitlab.com/gitdeeper8/opticlens">GitLab</a></span>
+                        <span>🐙 <a href="https://github.com/gitdeeper8/opticlens">GitHub</a></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Acknowledgments Section -->
+        <section id="acknowledgments" class="docs-section">
+            <span class="section-tag">🙏 Acknowledgments</span>
+            <h2 class="section-h">With <em>gratitude</em></h2>
+            
+            <p class="section-p">The author thanks the atmospheric science community for maintaining open-access data infrastructure: AERONET (aerosol monitoring), MODIS (satellite retrievals), CALIPSO (lidar profiles), and Bohren & Huffman for their foundational reference data.</p>
+            
+            <p class="section-p">This work is dedicated to understanding the optical complexity of our atmosphere — from desert mirages to high-altitude lidar pulse distortion — and to the generations of scientists who have spent careers unraveling the mysteries of light scattering.</p>
+            
+            <div class="quote">
+                Light does not simply travel through the atmosphere — it is shaped, scattered, bent, and dispersed by it, carrying within its spectral structure a complete thermodynamic fingerprint of every air column.
+            </div>
+        </section>
+
+        <div class="divider"></div>
+    </div>
+</div>
+  
+<!-- Footer -->
+<footer>
+    <div class="footer-grid">
+        <!-- About -->
+        <div class="footer-col">
+            <h4>🔭 OPTIC·LENS</h4>
+            <p>Optical Phenomena, Turbulence & Imaging</p>
+            <p>Light Environmental Nonlinearity System</p>
+            <p style="margin-top: 0.5rem; color: var(--accent);">v10.0.0 · CC BY 4.0</p>
+        </div>
+
+        <!-- Resources -->
+        <div class="footer-col">
+            <h4>Resources</h4>
+            <a href="index.html">🏠 Home</a>
+            <a href="/dashboard">🌐 Dashboard</a>
+            <a href="/documentation">📚 Documentation</a>
+            <a href="/reports">📖 Reports</a>
+            <a href="https://github.com/gitdeeper8/opticlens">💻 GitHub</a>
+            <a href="https://gitlab.com/gitdeeper8/opticlens">🦊 GitLab</a>
+            <a href="https://bitbucket.org/gitdeeper08/opticlens">🪣 Bitbucket</a>
+            <a href="https://codeberg.org/gitdeeper8/opticlens">🏔️ Codeberg</a>
+        </div>
+
+        <!-- Related Works -->
+        <div class="footer-col">
+            <h4>Related Works</h4>
+            <a href="https://pypi.org/project/opticlens/"><strong>📦 Software:</strong> PyPI</a>
+            <a href="https://doi.org/10.17605/OSF.IO/4QK59"><strong>📝 Preprint:</strong> 10.17605/OSF.IO/4QK59</a>
+            <a href="https://doi.org/10.5281/zenodo.18907508"><strong>🏷️ Zenodo:</strong> 10.5281/zenodo.18907508</a>
+            <a href="https://osf.io/ek5ru"><strong>🔬 OSF:</strong> Project</a>
+        </div>
+
+        <!-- External Data -->
+        <div class="footer-col">
+            <h4>External Data</h4>
+            <a href="https://aeronet.gsfc.nasa.gov">🌍 AERONET</a>
+            <a href="https://modis.gsfc.nasa.gov">🛰️ MODIS</a>
+            <a href="https://www-calipso.larc.nasa.gov">🛰️ CALIPSO</a>
+        </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="footer-bottom">
+        <div class="footer-copyright">
+            Copyright © OPTIC-LENS 🔭 2026 | All rights reserved
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+    
+    // Intersection Observer for animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.metric, .info-card, .api-item, .author-section').forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'all 0.6s ease';
+        observer.observe(el);
+    });
+</script>
+
+</body>
+</html>

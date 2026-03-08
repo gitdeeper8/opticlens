@@ -1,0 +1,49 @@
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python -V
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
+test:
+  stage: test
+  script:
+    - pip install -r requirements-dev.txt
+    - pytest tests/ -v --cov=opticlens
+    - pytest tests/test_mie_scattering.py -v --mie-accuracy 1e-6
+    - pytest tests/test_edlen_equation.py -v --refractive-index-tol 1e-9
+    - pytest tests/test_turbulence.py -v --cn2-validation
+
+pages:
+  stage: deploy
+  script:
+    - pip install -r requirements-docs.txt
+    - cd docs && make html
+    - mv build/html ../public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+
+deploy:
+  stage: deploy
+  script:
+    - pip install -r requirements.txt
+    - python scripts/update_aeronet_data.py
+    - python scripts/update_modis_data.py
+    - opticlens dashboard --deploy
+  only:
+    - tags

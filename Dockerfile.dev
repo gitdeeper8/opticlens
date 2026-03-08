@@ -1,0 +1,40 @@
+FROM python:3.10-slim
+
+LABEL maintainer="gitdeeper@gmail.com"
+LABEL version="1.0.0"
+LABEL description="OPTICLENS - Development Environment"
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    OPTICLENS_HOME=/app \
+    OPTICLENS_ENV=development \
+    TZ=UTC
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    g++ \
+    libgomp1 \
+    curl \
+    vim \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m -u 1000 -s /bin/bash opticlens && \
+    mkdir -p /app && \
+    mkdir -p /data && \
+    chown -R opticlens:opticlens /app /data
+
+USER opticlens
+WORKDIR /app
+
+COPY --chown=opticlens:opticlens requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+RUN pip install --user --no-cache-dir pytest pytest-cov black isort
+
+COPY --chown=opticlens:opticlens . .
+
+RUN pip install --user -e .
+
+EXPOSE 8000 8501 9090
+
+CMD ["opticlens", "serve", "--all", "--reload"]

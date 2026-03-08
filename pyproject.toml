@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opticlens"
+version = "10.0.0"
+description = "OPTICLENS: Optical Phenomena, Turbulence & Imaging --- Light Environmental Nonlinearity System"
+readme = "README.md"
+authors = [
+    {name = "Samir Baladi", email = "gitdeeper@gmail.com"}
+]
+license = {text = "CC BY 4.0"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Engineering",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Scientific/Engineering :: Optics",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+keywords = [
+    "atmospheric-optics",
+    "mie-scattering",
+    "aerosol",
+    "turbulence",
+    "radiative-transfer",
+    "lidar",
+    "remote-sensing",
+    "hyperspectral",
+    "ray-tracing",
+    "atmospheric-physics"
+]
+requires-python = ">=3.8"
+
+dependencies = [
+    "numpy>=1.21.0",
+    "scipy>=1.7.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0"
+]
+docs = [
+    "sphinx>=6.0.0",
+    "sphinx-rtd-theme>=1.2.0"
+]
+viz = [
+    "matplotlib>=3.7.0",
+    "plotly>=5.14.0"
+]
+
+[project.urls]
+Homepage = "https://opticlens.netlify.app"
+Repository = "https://github.com/gitdeeper8/opticlens"
+Documentation = "https://opticlens.readthedocs.io"
+DOI = "https://doi.org/10.5281/zenodo.18907508"
+
+[project.scripts]
+opticlens = "opticlens.cli:main"
+opticlens-mie = "opticlens.scattering.mie_v10:main"
+
+[tool.setuptools]
+packages = ["opticlens"]

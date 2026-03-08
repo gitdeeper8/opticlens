@@ -1,0 +1,36 @@
+{
+  "name": "opticlens-netlify",
+  "version": "10.0.0",
+  "description": "OPTICLENS Netlify Dashboard - Atmospheric Optics Framework",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "cd dashboard && npm install && npm run build",
+    "start": "netlify dev"
+  },
+  "keywords": [
+    "atmospheric-optics",
+    "mie-scattering",
+    "aerosol",
+    "turbulence",
+    "radiative-transfer",
+    "lidar",
+    "remote-sensing",
+    "hyperspectral"
+  ],
+  "author": "Samir Baladi",
+  "license": "CC BY 4.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gitdeeper8/opticlens"
+  },
+  "bugs": {
+    "url": "https://github.com/gitdeeper8/opticlens/issues"
+  },
+  "homepage": "https://opticlens.netlify.app",
+  "dependencies": {
+    "@netlify/functions": "^2.0.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}

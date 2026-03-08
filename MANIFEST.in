@@ -1,0 +1,49 @@
+# OPTICLENS Manifest for PyPI distribution
+
+# Core files
+include LICENSE
+include README.md
+include CHANGELOG.md
+include CITATION.cff
+include pyproject.toml
+include setup.py
+include setup.cfg
+
+# Source code
+recursive-include opticlens *.py
+
+# Documentation
+recursive-include docs *.rst *.md
+include docs/conf.py
+include docs/requirements.txt
+
+# Examples
+recursive-include examples *.py *.ipynb *.md
+
+# Test files
+recursive-include tests *.py
+include tests/fixtures/*.json
+include tests/fixtures/*.csv
+
+# Exclude build artifacts
+prune docs/build
+prune docs/site
+prune dist
+prune build
+prune *.egg-info
+prune .pytest_cache
+prune .mypy_cache
+prune .coverage
+prune htmlcov
+prune .venv
+prune venv
+prune __pycache__
+prune .ipynb_checkpoints
+
+# Exclude sensitive files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude .DS_Store
+global-exclude .coverage
+global-exclude .env
+global-exclude .env.*

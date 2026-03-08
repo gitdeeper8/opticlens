@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: opticlens:dev
+    container_name: opticlens-api-dev
+    command: uvicorn opticlens.api.fastapi_app:app --reload --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - OPTICLENS_ENV=development
+      - OPTICLENS_CONFIG=/app/config/config.dev.yaml
+    volumes:
+      - ./:/app
+    networks:
+      - opticlens-network-dev
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: opticlens:dev
+    container_name: opticlens-dashboard-dev
+    command: streamlit run dashboard/app.py --server.port 8501
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://api:8000
+    volumes:
+      - ./:/app
+    depends_on:
+      - api
+    networks:
+      - opticlens-network-dev
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    container_name: opticlens-redis-dev
+    ports:
+      - "6379:6379"
+    networks:
+      - opticlens-network-dev
+    restart: unless-stopped
+
+networks:
+  opticlens-network-dev:
+    driver: bridge

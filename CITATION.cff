@@ -1,0 +1,45 @@
+cff-version: 1.2.0
+message: "If you use OPTICLENS in your research, please cite it as below."
+title: "OPTICLENS: Optical Phenomena, Turbulence & Imaging --- Light Environmental Nonlinearity System"
+version: 10.0.0
+doi: 10.5281/zenodo.18907508
+date-released: 2026-03-08
+url: "https://opticlens.netlify.app"
+repository-code: "https://github.com/gitdeeper8/opticlens"
+license: "CC-BY-4.0"
+
+authors:
+  - family-names: "Baladi"
+    given-names: "Samir"
+    orcid: "https://orcid.org/0009-0003-8903-0029"
+    email: "gitdeeper@gmail.com"
+    affiliation: "Ronin Institute for Independent Scholarship"
+
+abstract: "A unified physics-computational framework for optical scattering anomalies and photon dynamics in heterogeneous atmospheric media. Integrates Mie scattering theory (0% error vs Bohren & Huffman 1983), Edlén refractive index equations, Rytov turbulence models, and Physics-Informed Neural Networks."
+
+keywords:
+  - "atmospheric optics"
+  - "mie scattering"
+  - "aerosol"
+  - "turbulence"
+  - "radiative transfer"
+  - "refractive index"
+  - "optical depth"
+  - "lidar"
+  - "hyperspectral imaging"
+  - "remote sensing"
+  - "ray tracing"
+  - "atmospheric physics"
+
+preferred-citation:
+  type: article
+  authors:
+    - family-names: "Baladi"
+      given-names: "Samir"
+  title: "OPTICLENS: A Unified Physics-Computational Framework for Atmospheric Optical Phenomena"
+  journal: "Journal of Quantitative Spectroscopy and Radiative Transfer"
+  year: 2026
+  volume: "pending"
+  issue: "pending"
+  pages: "pending"
+  doi: "pending"

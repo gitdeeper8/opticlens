@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OPTICLENS Reports - Daily, Weekly, Monthly atmospheric optics reports and alerts">
+    <meta name="theme-color" content="#03060f">
+    <title>OPTICLENS 🔭 - Reports Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300;400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --void: #03060f;
+            --deep: #070d1a;
+            --navy: #0a1628;
+            --steel: #112240;
+            --cyan: #00d4ff;
+            --cyan-dim: #0099bb;
+            --amber: #ffb800;
+            --amber-dim: #cc9200;
+            --white: #e8f0ff;
+            --muted: #7a8fa6;
+            --glow-cyan: rgba(0,212,255,0.15);
+            --glow-amber: rgba(255,184,0,0.12);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--void);
+            color: var(--white);
+            font-family: 'Crimson Pro', Georgia, serif;
+            font-weight: 300;
+            overflow-x: hidden;
+            cursor: crosshair;
+        }
+
+        /* ── CANVAS BG ── */
+        #starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem;
+        }
+
+        .hero-badge {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            color: var(--cyan);
+            text-transform: uppercase;
+            border: 1px solid rgba(0,212,255,0.3);
+            padding: 0.4rem 1.2rem;
+            border-radius: 2px;
+            margin-bottom: 2.5rem;
+            display: inline-block;
+            animation: fadeUp 0.8s ease forwards;
+            opacity: 0;
+            background: rgba(0,212,255,0.04);
+        }
+
+        .hero-title {
+            font-family: 'Oxanium', monospace;
+            font-weight: 800;
+            font-size: clamp(3.5rem, 8vw, 7rem);
+            letter-spacing: -0.02em;
+            line-height: 0.95;
+            margin-bottom: 0.4rem;
+            animation: fadeUp 0.8s 0.1s ease forwards;
+            opacity: 0;
+        }
+
+        .hero-title .lens { color: var(--cyan); }
+        .hero-title .optic { color: var(--white); }
+
+        .hero-subtitle-mono {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.18em;
+            color: var(--amber);
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            animation: fadeUp 0.8s 0.2s ease forwards;
+            opacity: 0;
+        }
+
+        .hero-desc {
+            font-size: 1.25rem;
+            line-height: 1.7;
+            color: rgba(232,240,255,0.75);
+            max-width: 680px;
+            margin: 0 auto 3rem;
+            font-style: italic;
+            animation: fadeUp 0.8s 0.3s ease forwards;
+            opacity: 0;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            animation: fadeUp 0.8s 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        .btn-primary {
+            font-family: 'Oxanium', monospace;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            background: var(--cyan);
+            color: var(--void);
+            border: none;
+            padding: 0.9rem 2.2rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+        }
+
+        .btn-primary:hover {
+            background: var(--white);
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0,212,255,0.4);
+        }
+
+        .btn-secondary {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            border: 1px solid rgba(122,143,166,0.3);
+            padding: 0.85rem 2rem;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            color: var(--white);
+            border-color: var(--white);
+        }
+
+        /* ── SCROLLER ── */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            animation: fadeUp 0.8s 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 50px;
+            background: linear-gradient(to bottom, var(--cyan), transparent);
+            animation: scrollPulse 2s infinite;
+        }
+
+        .scroll-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.55rem;
+            letter-spacing: 0.2em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        /* ── METRICS STRIP (عمودي) ── */
+        .metrics-strip {
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid rgba(0,212,255,0.1);
+            border-bottom: 1px solid rgba(0,212,255,0.1);
+            background: rgba(7,13,26,0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .metric-item {
+            padding: 2.2rem 2.5rem;
+            border-bottom: 1px solid rgba(0,212,255,0.08);
+            text-align: center;
+            width: 100%;
+            background: rgba(7,13,26,0.6);
+            transition: background 0.3s;
+        }
+
+        .metric-item:last-child { border-bottom: none; }
+
+        .metric-item:hover { background: rgba(0,212,255,0.04); }
+
+        .metric-value {
+            font-family: 'Oxanium', monospace;
+            font-weight: 700;
+            font-size: 3rem;
+            color: var(--cyan);
+            display: block;
+            line-height: 1;
+            margin-bottom: 0.6rem;
+        }
+
+        .metric-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.18em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        /* ── SECTION ── */
+        section {
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 3rem;
+        }
+
+        .section-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.25em;
+            color: var(--cyan);
+            text-transform: uppercase;
+            margin-bottom: 0.8rem;
+            display: block;
+        }
+
+        .section-title {
+            font-family: 'Oxanium', monospace;
+            font-weight: 700;
+            font-size: clamp(2rem, 4vw, 3rem);
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            color: var(--white);
+        }
+
+        .section-body {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: rgba(232,240,255,0.65);
+            max-width: 600px;
+        }
+
+        /* Stats Overview */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+
+        .stat-item {
+            padding: 2rem;
+            background: rgba(10, 22, 40, 0.4);
+            border: 1px solid rgba(0,212,255,0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--cyan);
+            background: rgba(10, 22, 40, 0.7);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--cyan);
+            margin-bottom: 0.5rem;
+            font-family: 'Oxanium', monospace;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* Buttons */
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 2rem 0;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dim) 100%);
+            color: var(--void);
+            border: 1px solid var(--cyan-dim);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0,212,255,0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--cyan);
+            border: 2px solid var(--cyan);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0,212,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Report Generator Panel */
+        .gen-panel {
+            background: rgba(7,13,26,0.8);
+            border: 1px solid rgba(0,212,255,0.1);
+            margin: 3rem 0;
+            padding: 2.5rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .gen-title {
+            font-family: 'Oxanium', monospace;
+            font-size: 2rem;
+            color: var(--white);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .gen-desc {
+            color: var(--muted);
+            margin-bottom: 2rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .gen-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .gen-btn {
+            padding: 1rem 2rem;
+            background: rgba(10, 22, 40, 0.8);
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .gen-btn:hover {
+            background: var(--navy);
+            border-color: var(--cyan);
+            transform: translateY(-2px);
+        }
+
+        .gen-btn.primary {
+            background: linear-gradient(135deg, var(--cyan) 0%, var(--cyan-dim) 100%);
+            border: 1px solid var(--cyan-dim);
+            color: var(--void);
+        }
+
+        .gen-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0,212,255,0.4);
+        }
+
+        .gen-output {
+            background: rgba(3, 6, 15, 0.8);
+            border: 1px solid rgba(0,212,255,0.2);
+            padding: 1.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--white);
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border-radius: 12px;
+            border-left: 4px solid var(--cyan);
+        }
+
+        /* Reports Grid */
+        .reports-section {
+            margin: 4rem 0;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .section-header h2 {
+            font-family: 'Oxanium', monospace;
+            margin-bottom: 0;
+            font-size: 1.8rem;
+        }
+
+        .section-header .section-link {
+            color: var(--cyan);
+            text-decoration: none;
+            font-weight: 500;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.8rem;
+        }
+
+        .section-header .section-link:hover {
+            text-decoration: underline;
+        }
+
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .report-card {
+            background: rgba(7,13,26,0.8);
+            border: 1px solid rgba(0,212,255,0.1);
+            padding: 1.5rem;
+            border-radius: 16px;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--cyan);
+        }
+
+        .report-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--cyan);
+            background: rgba(10, 22, 40, 0.9);
+        }
+
+        .report-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .report-name {
+            font-family: 'Oxanium', monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--white);
+            margin-bottom: 0.3rem;
+        }
+
+        .report-meta {
+            font-size: 0.8rem;
+            color: var(--amber);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .report-preview {
+            font-size: 0.9rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            max-height: 80px;
+            overflow: hidden;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .report-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .report-link {
+            color: var(--cyan);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .report-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Alerts Section */
+        .alerts-section {
+            margin: 4rem 0;
+        }
+
+        .alert-card {
+            background: rgba(7,13,26,0.8);
+            border: 1px solid rgba(0,212,255,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            border-left: 4px solid;
+            backdrop-filter: blur(5px);
+        }
+
+        .alert-card:hover {
+            transform: translateX(-5px);
+            background: rgba(10, 22, 40, 0.9);
+        }
+
+        .alert-critical {
+            border-left-color: #ff5252;
+        }
+
+        .alert-warning {
+            border-left-color: #ffb74d;
+        }
+
+        .alert-watch {
+            border-left-color: #ffd54f;
+        }
+
+        .alert-info {
+            border-left-color: var(--cyan);
+        }
+
+        .alert-left {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .alert-level {
+            font-size: 1.1rem;
+            font-weight: 600;
+            min-width: 100px;
+            font-family: 'Oxanium', monospace;
+        }
+
+        .alert-critical .alert-level { color: #ff5252; }
+        .alert-warning .alert-level { color: #ffb74d; }
+        .alert-watch .alert-level { color: #ffd54f; }
+        .alert-info .alert-level { color: var(--cyan); }
+
+        .alert-desc {
+            font-size: 0.95rem;
+            color: var(--muted);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .alert-right {
+            font-size: 0.9rem;
+            color: var(--cyan);
+            font-family: 'Space Mono', monospace;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(0,212,255,0.1);
+            max-width: 1200px;
+            margin: 3rem auto;
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 1;
+            background: var(--deep);
+            border-top: 1px solid rgba(0,212,255,0.12);
+            padding: 4rem 3rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid rgba(0,212,255,0.08);
+        }
+
+        @media (max-width: 900px) {
+            .footer-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 560px) {
+            .footer-grid { grid-template-columns: 1fr; }
+            footer { padding: 3rem 1.5rem 2rem; }
+        }
+
+        .footer-col {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .footer-col h4 {
+            font-family: 'Oxanium', monospace;
+            font-weight: 700;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--cyan);
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0,212,255,0.15);
+        }
+
+        .footer-col a {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--muted);
+            text-decoration: none;
+            padding: 0.2rem 0;
+            transition: color 0.2s;
+            letter-spacing: 0.02em;
+        }
+
+        .footer-col a:hover {
+            color: var(--cyan);
+            padding-left: 0.3rem;
+        }
+
+        .footer-col p {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 0.3rem;
+        }
+
+        .footer-col ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-col li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 2rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .footer-copyright {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(122,143,166,0.6);
+            letter-spacing: 0.05em;
+        }
+
+        .footer-quote {
+            font-family: 'Crimson Pro', serif;
+            font-style: italic;
+            font-size: 0.8rem;
+            color: rgba(232,240,255,0.3);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes scrollPulse {
+            0%, 100% { opacity: 0.4; transform: scaleY(1); }
+            50% { opacity: 1; transform: scaleY(1.15); }
+        }
+
+        @keyframes rotateSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Decorative Rings */
+        .hero-ring {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border: 1px solid rgba(0,212,255,0.04);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: rotateSlow 60s linear infinite;
+            pointer-events: none;
+        }
+
+        .hero-ring::before {
+            content: '';
+            position: absolute;
+            width: 4px; height: 4px;
+            background: var(--cyan);
+            border-radius: 50%;
+            top: 0; left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 12px var(--cyan);
+        }
+
+        .hero-ring-2 {
+            position: absolute;
+            width: 900px;
+            height: 900px;
+            border: 1px solid rgba(255,184,0,0.03);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: rotateSlow 90s linear infinite reverse;
+            pointer-events: none;
+        }
+
+        .hero-ring-2::before {
+            content: '';
+            position: absolute;
+            width: 3px; height: 3px;
+            background: var(--amber);
+            border-radius: 50%;
+            top: 50%; right: 0;
+            transform: translate(50%, -50%);
+            box-shadow: 0 0 8px var(--amber);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .gen-controls { flex-direction: column; }
+            .gen-btn { width: 100%; }
+            .reports-grid { grid-template-columns: 1fr; }
+            .alert-left { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="starfield"></canvas>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-ring"></div>
+    <div class="hero-ring-2"></div>
+
+    <span class="hero-badge">Reports Dashboard</span>
+
+    <h1 class="hero-title">
+        <span class="optic">OPTIC</span><span class="lens">-LENS</span>
+    </h1>
+
+    <p class="hero-subtitle-mono">
+        Daily · Weekly · Monthly · Alerts
+    </p>
+
+    <p class="hero-desc">
+        Real-time monitoring and historical analysis of atmospheric optical phenomena
+    </p>
+
+    <div class="stats-grid">
+        <div class="stat-item">
+            <div class="stat-value">143</div>
+            <div class="stat-label">Total Reports</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">65</div>
+            <div class="stat-label">Days Active</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">99.2%</div>
+            <div class="stat-label">System Uptime</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">8</div>
+            <div class="stat-label">Active Alerts</div>
+        </div>
+    </div>
+
+    <div class="hero-actions">
+        <a href="index.html" class="btn-secondary">🔭 Home</a>
+        <a href="https://opticlens.netlify.app" class="btn-primary">📊 Dashboard</a>
+    </div>
+
+    <div class="scroll-indicator">
+        <div class="scroll-line"></div>
+        <span class="scroll-label">Scroll</span>
+    </div>
+</section>
+
+<!-- Report Generator Panel -->
+<div style="position:relative; z-index:1; background:rgba(7,13,26,0.8); border-top:1px solid rgba(0,212,255,0.1); border-bottom:1px solid rgba(0,212,255,0.1); padding:3rem 1.5rem;">
+    <div class="gen-panel" style="max-width:1200px; margin:0 auto;">
+        <h2 class="gen-title">⚙️ Report Generator</h2>
+        <p class="gen-desc">Generate real-time atmospheric optics reports. All reports are saved to the reports/ directory.</p>
+        
+        <div class="gen-controls">
+            <button class="gen-btn primary" onclick="generateReport('daily')">📄 Daily Report</button>
+            <button class="gen-btn" onclick="generateReport('weekly')">📆 Weekly Report</button>
+            <button class="gen-btn" onclick="generateReport('monthly')">📊 Monthly Report</button>
+            <button class="gen-btn" onclick="generateAlert()">⚠️ Generate Alert</button>
+        </div>
+        
+        <div class="gen-output" id="reportOutput">
+🔭 Click a button above to generate an atmospheric optics report. Reports include AOD analysis, turbulence parameters, and active alerts.
+        </div>
+    </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- Daily Reports -->
+<section class="reports-section">
+    <div class="section-inner">
+        <div class="section-header">
+            <h2 class="section-title">📅 Daily Reports</h2>
+            <a href="#" class="section-link">View All →</a>
+        </div>
+        
+        <div class="reports-grid">
+            <div class="report-card">
+                <div class="report-icon">📄</div>
+                <div class="report-name">2026-03-07</div>
+                <div class="report-meta">Daily Report · TXT</div>
+                <div class="report-preview">
+                    AOD 500nm: 0.12 · Ångström α: 1.45
+                    Cₙ²: 1.5e-15 · r₀: 0.12m
+                    τ(440): 0.093 · 0% Mie Error
+                    All systems nominal
+                </div>
+                <div class="report-links">
+                    <a href="#" class="report-link">View</a>
+                    <a href="#" class="report-link">Download</a>
+                </div>
+            </div>
+            
+            <div class="report-card">
+                <div class="report-icon">📄</div>
+                <div class="report-name">2026-03-06</div>
+                <div class="report-meta">Daily Report · TXT</div>
+                <div class="report-preview">
+                    AOD 500nm: 0.15 · GSFC Station
+                    Turbulence: Moderate
+                    Scintillation: 0.08
+                    Halo: 22° observed
+                </div>
+                <div class="report-links">
+                    <a href="#" class="report-link">View</a>
+                    <a href="#" class="report-link">Download</a>
+                </div>
+            </div>
+            
+            <div class="report-card">
+                <div class="report-icon">📄</div>
+                <div class="report-name">2026-03-05</div>
+                <div class="report-meta">Daily Report · TXT</div>
+                <div class="report-preview">
+                    AOD 500nm: 0.08 · Mauna Kea
+                    Fried r₀: 0.15m
+                    Cₙ² profile: ±16% error
+                    Excellent seeing conditions
+                </div>
+                <div class="report-links">
+                    <a href="#" class="report-link">View</a>
+                    <a href="#" class="report-link">Download</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Weekly Reports -->
+<section class="reports-section">
+    <div class="section-inner">
+        <div class="section-header">
+            <h2 class="section-title">📆 Weekly Reports</h2>
+            <a href="#" class="section-link">View All →</a>
+        </div>
+        
+        <div class="reports-grid">
+            <div class="report-card">
+                <div class="report-icon">📆</div>
+                <div class="report-name">Week 10 (2026)</div>
+                <div class="report-meta">Weekly Report · TXT</div>
+                <div class="report-preview">
+                    Avg AOD: 0.12 · Max AOD: 0.45
+                    Mean Cₙ²: 2.3e-15
+                    Fried r₀ avg: 0.11m
+                    Halo events: 3
+                </div>
+                <div class="report-links">
+                    <a href="#" class="report-link">View</a>
+                    <a href="#" class="report-link">Download</a>
+                </div>
+            </div>
+            
+            <div class="report-card">
+                <div class="report-icon">📆</div>
+                <div class="report-name">Week 09 (2026)</div>
+                <div class="report-meta">Weekly Report · TXT</div>
+                <div class="report-preview">
+                    Avg AOD: 0.09 · Max AOD: 0.32
+                    Mean Cₙ²: 1.8e-15
+                    Scintillation index: 0.06
+                    System uptime: 99.1%
+                </div>
+                <div class="report-links">
+                    <a href="#" class="report-link">View</a>
+                    <a href="#" class="report-link">Download</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Monthly Reports -->
+<section class="reports-section">
+    <div class="section-inner">
+        <div class="section-header">
+            <h2 class="section-title">📊 Monthly Reports</h2>
+            <a href="#" class="section-link">View All →</a>
+        </div>
+        
+        <div class="reports-grid">
+            <div class="report-card">
+                <div class="report-icon">📊</div>
+                <div class="report-name">March 2026</div>
+                <div class="report-meta">Monthly Report · TXT</div>
+                <div class="report-preview">
+                    Avg AOD: 0.11 · Stations: 500+
+                    Mie Validation: 0% error
+                    Turbulence profiles: 120
+                    Publications: 2
+                </div>
+                <div class="report-links">
+                    <a href="#" class="report-link">View</a>
+                    <a href="#" class="report-link">Download</a>
+                </div>
+            </div>
+            
+            <div class="report-card">
+                <div class="report-icon">📊</div>
+                <div class="report-name">February 2026</div>
+                <div class="report-meta">Monthly Report · TXT</div>
+                <div class="report-preview">
+                    Avg AOD: 0.09 · Stations: 485
+                    Halo simulations: 45
+                    Mirage calculations: 28
+                    API calls: 12.5k
+                </div>
+                <div class="report-links">
+                    <a href="#" class="report-link">View</a>
+                    <a href="#" class="report-link">Download</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Active Alerts -->
+<section class="alerts-section">
+    <div class="section-inner">
+        <div class="section-header">
+            <h2 class="section-title">⚠️ Active Alerts</h2>
+            <a href="#" class="section-link">View All →</a>
+        </div>
+        
+        <div class="alert-card alert-critical">
+            <div class="alert-left">
+                <span class="alert-level">CRITICAL 🔴</span>
+                <span class="alert-desc">High AOD detected (0.89) - Beijing station</span>
+            </div>
+            <span class="alert-right">08:45 UTC</span>
+        </div>
+        
+        <div class="alert-card alert-warning">
+            <div class="alert-left">
+                <span class="alert-level">WARNING 🟠</span>
+                <span class="alert-desc">Strong turbulence (Cₙ²=3.2e-15) - Mauna Kea</span>
+            </div>
+            <span class="alert-right">14:20 UTC</span>
+        </div>
+        
+        <div class="alert-card alert-watch">
+            <div class="alert-left">
+                <span class="alert-level">WATCH 🟡</span>
+                <span class="alert-desc">22° halo predicted - Antarctica region</span>
+            </div>
+            <span class="alert-right">16:30 UTC</span>
+        </div>
+        
+        <div class="alert-card alert-info">
+            <div class="alert-left">
+                <span class="alert-level">INFO 🟢</span>
+                <span class="alert-desc">Mie validation: 0% error maintained</span>
+            </div>
+            <span class="alert-right">00:00 UTC</span>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-grid">
+        <!-- About -->
+        <div class="footer-col">
+            <h4>🔭 OPTIC·LENS</h4>
+            <p>Optical Phenomena, Turbulence & Imaging</p>
+            <p>Light Environmental Nonlinearity System</p>
+            <p style="margin-top: 0.5rem; color: var(--amber);">v10.0.0 · CC BY 4.0</p>
+        </div>
+
+        <!-- Resources -->
+        <div class="footer-col">
+            <h4>Resources</h4>
+            <a href="index.html">🏠 Home</a>
+            <a href="https://opticlens.netlify.app">🌐 Dashboard</a>
+            <a href="documentation.html">📚 Documentation</a>
+            <a href="reports.html">📖 Reports</a>
+            <a href="https://github.com/gitdeeper8/opticlens">💻 GitHub</a>
+            <a href="https://gitlab.com/gitdeeper8/opticlens">🦊 GitLab</a>
+            <a href="https://bitbucket.org/gitdeeper08/opticlens">🪣 Bitbucket</a>
+            <a href="https://codeberg.org/gitdeeper8/opticlens">🏔️ Codeberg</a>
+        </div>
+
+        <!-- Related Works -->
+        <div class="footer-col">
+            <h4>Related Works</h4>
+            <a href="https://pypi.org/project/opticlens/"><strong>📦 Software:</strong> PyPI</a>
+            <a href="https://doi.org/10.17605/OSF.IO/4QK59"><strong>📝 Preprint:</strong> 10.17605/OSF.IO/4QK59</a>
+            <a href="https://doi.org/10.5281/zenodo.18907508"><strong>🏷️ Zenodo:</strong> 10.5281/zenodo.18907508</a>
+            <a href="https://osf.io/ek5ru"><strong>🔬 OSF:</strong> Project</a>
+        </div>
+
+        <!-- External Data -->
+        <div class="footer-col">
+            <h4>External Data</h4>
+            <a href="https://aeronet.gsfc.nasa.gov">🌍 AERONET</a>
+            <a href="https://modis.gsfc.nasa.gov">🛰️ MODIS</a>
+            <a href="https://www-calipso.larc.nasa.gov">🛰️ CALIPSO</a>
+        </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="footer-bottom">
+        <div class="footer-copyright">
+            Copyright © OPTIC-LENS 🔭 2026 | All rights reserved
+        </div>
+    </div>
+</footer>
+
+<script>
+// Starfield animation
+const canvas = document.getElementById('starfield');
+const ctx = canvas.getContext('2d');
+let stars = [];
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function initStars() {
+    stars = [];
+    for (let i = 0; i < 180; i++) {
+        stars.push({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: Math.random() * 1.2,
+            a: Math.random(),
+            speed: 0.0003 + Math.random() * 0.0005,
+            phase: Math.random() * Math.PI * 2
+        });
+    }
+}
+
+function drawStars(t) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(s => {
+        const alpha = s.a * (0.4 + 0.6 * Math.sin(s.phase + t * s.speed * 1000));
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200,230,255,${alpha})`;
+        ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+}
+
+window.addEventListener('resize', () => { resize(); initStars(); });
+resize();
+initStars();
+requestAnimationFrame(drawStars);
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+            setTimeout(() => e.target.classList.add('visible'), i * 80);
+        }
+    });
+}, { threshold: 0.1 });
+
+reveals.forEach(el => observer.observe(el));
+
+// Report generator
+function generateReport(type) {
+    const output = document.getElementById('reportOutput');
+    const date = new Date().toISOString().split('T')[0];
+    
+    let reportContent = '';
+    
+    if (type === 'daily') {
+        reportContent = `================================================================================
+🔭 OPTICLENS DAILY REPORT - ${date}
+================================================================================
+
+📊 ATMOSPHERIC OPTICS SUMMARY
+--------------------------------------------------------------------------------
+AOD 500nm: 0.12 (NOMINAL ⚪)
+Ångström Exponent α: 1.45
+Fine Mode Fraction: 0.65
+Single Scattering Albedo: 0.98
+
+🌪️ TURBULENCE PARAMETERS
+--------------------------------------------------------------------------------
+Cₙ²: 1.5e-15 m^(-2/3)
+Fried Parameter r₀: 0.12 m
+Scintillation Index σχ²: 0.08
+Coherence Time τ₀: 5.2 ms
+
+🔬 MIE VALIDATION
+--------------------------------------------------------------------------------
+Bohren & Huffman (1983): 0.00% error
+x=2.0: Q_ext=3.210 (ref=3.210)
+x=0.1: Q_ext=0.093 (ref=0.093)
+
+❄️ ICE CRYSTAL HALOS
+--------------------------------------------------------------------------------
+22° Halo: Observed
+46° Halo: Not observed
+Sun Dogs: Faint
+Circumzenithal Arc: Not observed
+
+🌅 MIRAGE DISPLACEMENT
+--------------------------------------------------------------------------------
+Inferior Mirage: Not detected
+Superior Mirage: Possible (0.3° elevation)
+
+⚠️ ACTIVE ALERTS
+--------------------------------------------------------------------------------
+🟠 WARNING: Strong turbulence at Mauna Kea
+🟡 WATCH: 22° halo predicted
+🟢 INFO: Mie validation: 0% error
+
+================================================================================`;
+    } else if (type === 'weekly') {
+        const weekNum = new Date().getWeekNumber();
+        reportContent = `================================================================================
+🔭 OPTICLENS WEEKLY REPORT - Week ${weekNum} 2026
+================================================================================
+
+📊 WEEKLY STATISTICS
+--------------------------------------------------------------------------------
+Average AOD: 0.12
+Maximum AOD: 0.45 (Beijing)
+Minimum AOD: 0.03 (Canberra)
+Standard Deviation: 0.08
+
+📈 DAILY AOD BREAKDOWN (500nm)
+--------------------------------------------------------------------------------
+Mon: 0.11 | Tue: 0.13 | Wed: 0.12 | Thu: 0.14
+Fri: 0.10 | Sat: 0.09 | Sun: 0.12
+
+🌪️ TURBULENCE SUMMARY
+--------------------------------------------------------------------------------
+Mean Cₙ²: 2.3e-15 m^(-2/3)
+Best r₀: 0.18 m (Tue 04:00)
+Worst r₀: 0.05 m (Thu 14:00)
+
+🔬 VALIDATION SUMMARY
+--------------------------------------------------------------------------------
+Mie vs B&H 1983: 0.00% error (all points)
+AERONET stations: 15 active
+MODIS comparison: 71% within FEES
+
+================================================================================`;
+    } else if (type === 'monthly') {
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        const month = monthNames[new Date().getMonth()];
+        reportContent = `================================================================================
+🔭 OPTICLENS MONTHLY REPORT - ${month} 2026
+================================================================================
+
+📊 MONTHLY STATISTICS
+--------------------------------------------------------------------------------
+Days in month: 31
+Average AOD: 0.11
+Median AOD: 0.10
+Maximum AOD: 0.45
+Minimum AOD: 0.02
+Standard Deviation: 0.09
+
+🌪️ TURBULENCE STATISTICS
+--------------------------------------------------------------------------------
+Mean Cₙ²: 2.1e-15 m^(-2/3)
+Peak Cₙ²: 8.5e-15
+Median Fried r₀: 0.12 m
+
+🔬 VALIDATION SUMMARY
+--------------------------------------------------------------------------------
+Mie Benchmark: 0.00% error
+AERONET Stations: 500+ active
+MODIS Retrievals: 71% within FEES
+
+❄️ HALO EVENTS
+--------------------------------------------------------------------------------
+22° Halos: 12 observations
+46° Halos: 3 observations
+Sun Dogs: 8 observations
+
+🚨 ALERT DISTRIBUTION
+--------------------------------------------------------------------------------
+NOMINAL (AOD<0.1):   18 days (58%)
+CAUTION (0.1-0.3):   10 days (32%)
+WATCH (0.3-0.5):      2 days (6%)
+WARNING (0.5-0.8):    1 days (3%)
+CRITICAL (>0.8):      0 days (0%)
+
+================================================================================`;
+    }
+    
+    output.textContent = reportContent;
+    output.scrollTop = 0;
+}
+
+function generateAlert() {
+    const output = document.getElementById('reportOutput');
+    const time = new Date().toLocaleTimeString();
+    
+    const alertContent = `================================================================================
+🔭 OPTICLENS ALERT GENERATED
+================================================================================
+Time: ${time} UTC
+Type: HIGH AEROSOL EVENT
+Level: WARNING 🟠
+
+📊 PARAMETERS
+--------------------------------------------------------------------------------
+AOD 500nm: 0.89
+Station: Beijing (39.977°N, 116.381°E)
+Ångström Exponent: 1.82
+Fine Mode Fraction: 0.78
+
+⚠️ RECOMMENDED ACTIONS
+--------------------------------------------------------------------------------
+• Monitor visibility conditions
+• Check satellite retrievals
+• Verify with nearby AERONET stations
+• Prepare alert notification
+
+================================================================================`;
+    
+    output.textContent = alertContent;
+}
+
+// Get week number helper
+Date.prototype.getWeekNumber = function() {
+    const d = new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1)/7);
+};
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
+});
+</script>
+</body>
+</html>
